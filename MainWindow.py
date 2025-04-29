@@ -57,11 +57,28 @@ class MainWindow(QMainWindow):
         self.gradientSlider = self.findChild(QSlider, "gradientSlider_2")
         self.number_clusters=self.findChild(QSlider,"clustersSlider")
     
+
+        self.spatialLabel= self.findChild(QLabel, "spatialLabel_3")
+        self.bandwidthLabel= self.findChild(QLabel, "bandwidthLabel_2")
+        self.colorLabel= self.findChild(QLabel, "colorLabel_2")
+        self.gradientLabel= self.findChild(QLabel, "gradientLabel_2")
+        self.mergingLabel= self.findChild(QLabel, "mergingLabel_2")
+
+
+
         self.spatialSlider.setRange(1, 50)
         self.colorSlider.setRange(1, 50)
         self.mergingSlider.setRange(10, 200)
         self.bandwidthSlider.setRange(5, 50)
         self.gradientSlider.setRange(1, 20)
+        self.spatialSlider.valueChanged.connect(self.update_slider_labels)
+        self.bandwidthSlider.valueChanged.connect(self.update_slider_labels)
+        self.colorSlider.valueChanged.connect(self.update_slider_labels)
+        self.gradientSlider.valueChanged.connect(self.update_slider_labels)
+        self.mergingSlider.valueChanged.connect(self.update_slider_labels)
+
+        # Initial update so labels reflect default slider positions
+        self.update_slider_labels()
 
         self.apply_segmentation.clicked.connect(self.apply_segmentation_clicked)
 
@@ -219,6 +236,12 @@ class MainWindow(QMainWindow):
         else:
             print("Segmentation returned None.")
 
+    def update_slider_labels(self):
+     self.spatialLabel.setText(f" {self.spatialSlider.value()}")
+     self.bandwidthLabel.setText(f" {self.bandwidthSlider.value() / 10.0:.1f}")
+     self.colorLabel.setText(f" {self.colorSlider.value()}")
+     self.gradientLabel.setText(f" {self.gradientSlider.value()}")
+     self.mergingLabel.setText(f" {self.mergingSlider.value() / 100.0:.2f}")
 
 
 if __name__ == '__main__':
