@@ -1,73 +1,48 @@
 import numpy as np
-from scipy.sparse.linalg import eigsh
-from skimage.transform import resize
+import cv2
 
-class SpectralThreshold:
-    def __init__(self, image, sigma=10):
-        """
-        Initialize the SpectralThreshold class.
-        
-        Parameters:
-        image : 2D numpy array
-            Input grayscale image.
-        sigma : float
-            Parameter to control the sensitivity of pixel similarity.
-        """
-        self.original_image = image
-        self.image = resize(image, (30, 30))  # downsample for performance
-        self.image = self.image / 255.0  # normalize pixel values
-        self.sigma = sigma
-        self.height, self.width = self.image.shape
-        self.N = self.height * self.width  # total number of pixels (nodes)
+import numpy as np
+def spectral_threshold(img):
+    #  Compute the histogram and global mean
+    hist, _ = np.histogram(img, 256, [0, 256])
+    mean = np.sum(np.arange(256) * hist) / float(img.size)
+    #Search for optimal thresholds (low, high)
+    optimal_high = 0
+    optimal_low = 0
+    max_variance = 0
+    for high in range(0, 256):
+        for low in range(0, high):
+            #The pixels are split into 3 classes
+            w0 = np.sum(hist[0:low])
+            if w0 == 0:
+                continue
+            mean0 = np.sum(np.arange(0, low) * hist[0:low]) / float(w0)
+            w1 = np.sum(hist[low:high])
+            if w1 == 0:
+                continue
+            mean1 = np.sum(np.arange(low, high) * hist[low:high]) / float(w1)
+            
+            w2 = np.sum(hist[high:])
+            if w2 == 0:
+                continue
+            mean2 = np.sum(np.arange(high, 256) * hist[high:]) / float(w2)
+            # the class weights (w0, w1, w2) and class means (mean0, mean1, mean2 are calculated
+            variance = w0 * (mean0 - mean) * 2 + w1 * (mean1 - mean) * 2 + w2 * (mean2 - mean) ** 2
+            if variance > max_variance:
+                max_variance = variance
+                optimal_high = high
+                optimal_low = low
 
-    def build_affinity_matrix(self):
-        """
-        Construct the affinity (similarity) matrix W.
-        W[i, j] = exp(-||I[i] - I[j]||^2 / 2σ^2)
-        Only considers nearby pixels (e.g., within 8-connectivity).
-        """
-        flat_image = self.image.flatten()
-        W = np.zeros((self.N, self.N), dtype=np.float32)
+    binary = np.zeros(img.shape, dtype=np.uint8)
+    binary[img < optimal_low] = 0
+    binary[(img >= optimal_low) & (img < optimal_high)] = 128
+    binary[img >= optimal_high] = 255
+    return binary
 
-        for i in range(self.N):
-            for j in range(i, self.N):
-                # Only connect nearby pixels to reduce computation
-                if abs(i - j) <= self.width + 1:
-                    diff = flat_image[i] - flat_image[j]
-                    W[i, j] = np.exp(-(diff**2) / (2 * self.sigma**2))
-                    W[j, i] = W[i, j]  # Symmetric matrix
-        return W
+import matplotlib.pyplot as plt
+image = cv2.imread("D:\SBME 2026\(3rd year 2nd term) Sixth Term\computer vision\segment cancer.jpeg", cv2.IMREAD_GRAYSCALE)
+seg_result = spectral_threshold(image)
 
-    def compute_laplacian(self, W):
-        """
-        Compute the unnormalized graph Laplacian L = D - W.
-        D is the degree matrix (diagonal with row sums of W).
-        """
-        D = np.diag(np.sum(W, axis=1))
-        L = D - W
-        return L
-
-    def compute_fiedler_vector(self, L):
-        """
-        Compute the second smallest eigenvector of L (Fiedler vector).
-        This vector is used for thresholding.
-        """
-        vals, vecs = eigsh(L, k=2, which='SM')  # smallest two eigenvalues
-        return vecs[:, 1]  # Fiedler vector
-
-    def threshold_vector(self, fiedler_vector):
-        """
-        Segment the image based on the Fiedler vector using zero threshold.
-        """
-        mask = fiedler_vector > 0
-        return mask.reshape(self.image.shape)
-
-    def apply(self):
-        """
-        Run the full spectral thresholding pipeline and return the mask.
-        """
-        W = self.build_affinity_matrix()
-        L = self.compute_laplacian(W)
-        fiedler_vector = self.compute_fiedler_vector(L)
-        segmented_mask = self.threshold_vector(fiedler_vector)
-        return segmented_mask
+plt.imshow(seg_result, cmap='gray')
+plt.title("Segmented Output")
+plt.show()
