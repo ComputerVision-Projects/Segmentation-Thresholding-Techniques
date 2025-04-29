@@ -30,6 +30,8 @@ class ImageViewer(QWidget):
             self.input_view.mouseDoubleClickEvent = self.handle_double_click
             self.input_view.mousePressEvent = self.handle_mouse_press  # ← Add this line
     
+    def set_mode(self, mode):
+        self.mode= mode
 
     def handle_double_click(self, event=None):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -42,6 +44,7 @@ class ImageViewer(QWidget):
         if event.button() == Qt.LeftButton:
             pos = event.pos()
             self.seed_point = QPoint(pos.x(), pos.y())
+            print(f"position: {pos}")
             self.update()
     
     def paintEvent(self, event):

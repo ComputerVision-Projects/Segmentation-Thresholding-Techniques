@@ -60,9 +60,8 @@ class RegionGrowing:
         return abs(int(self.gr_image[y1, x1]) - int(self.gr_image[y2, x2])) < threshold
 
     #called by mainwindow.(Step 1)
-    def segment_image(self, seed_points, threshold):
-        for seed in seed_points:
-            self._grow_region(seed, threshold)
+    def segment_image(self, seed_point, threshold):
+        self._grow_region(seed_point, threshold)
         return self.segmented_image
 
 
