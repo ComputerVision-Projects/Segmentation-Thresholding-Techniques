@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.apply_segment.clicked.connect(self.apply_segmentation_method)
 
     def apply_segmentation_method(self):
-        index= self.combox_segment_method.getCurrentIndex()
+        index= self.combox_segment_method.currentIndex()
         if index==0: #RegionGrowing
             self.apply_region_growing()
         else:
