@@ -807,7 +807,7 @@ color:#ffffff;
                  </item>
                  <item>
                   <property name="text">
-                   <string>Mean Shift </string>
+                   <string>Mean Shift</string>
                   </property>
                  </item>
                 </widget>
