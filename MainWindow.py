@@ -8,6 +8,9 @@ from PyQt5.uic import loadUi
 from ImageViewer import ImageViewer
 import cv2
 import numpy as np
+import time
+from MeanShift import MeanShift
+from AgglomerativeSegmentation import AgglomerativeClustering
 from ImageViewer import ImageViewer
 from KMeansCluster import KMeansCluster
 from RegionGrowing import RegionGrowing
@@ -52,13 +55,15 @@ class MainWindow(QMainWindow):
         self.bandwidthSlider = self.findChild(QSlider, "bandwidthSlider_2")
         self.colorSlider = self.findChild(QSlider, "colorSlider_2")
         self.gradientSlider = self.findChild(QSlider, "gradientSlider_2")
+        self.number_clusters=self.findChild(QSlider,"clustersSlider")
+    
 
         self.spatialLabel= self.findChild(QLabel, "spatialLabel_3")
         self.bandwidthLabel= self.findChild(QLabel, "bandwidthLabel_2")
         self.colorLabel= self.findChild(QLabel, "colorLabel_2")
         self.gradientLabel= self.findChild(QLabel, "gradientLabel_2")
         self.mergingLabel= self.findChild(QLabel, "mergingLabel_2")
-
+        self.agglomerative_label=self.findChild(QLabel,"clustersLabel")
 
 
         self.spatialSlider.setRange(1, 50)
@@ -71,6 +76,8 @@ class MainWindow(QMainWindow):
         self.colorSlider.valueChanged.connect(self.update_slider_labels)
         self.gradientSlider.valueChanged.connect(self.update_slider_labels)
         self.mergingSlider.valueChanged.connect(self.update_slider_labels)
+        self.number_clusters.valueChanged.connect(self.update_slider_labels)
+        
 
         # Initial update so labels reflect default slider positions
         self.update_slider_labels()
@@ -79,7 +86,7 @@ class MainWindow(QMainWindow):
 
         #kmeans&region growing tab
         self.input_widget_tab1 = self.findChild(QWidget, "inputImage_2")
-        self.segmented_widget_tab1 = self.findChild(QWidget, "segmentedImage_2")
+        self.segmented_widget_tab1 = self.findChild(QWidget, "segmentedImage")
         self.input_viewer_tab1 = ImageViewer(input_view=self.input_widget_tab1, mode=True)
         self.segmented_viewer_tab1 = ImageViewer(output_view=self.segmented_widget_tab1, mode=True)    
         
@@ -103,8 +110,8 @@ class MainWindow(QMainWindow):
             binary_image, threshold_value = thresholder.optimal_global()
        elif "Otsu" in method:
             binary_image, optimal_threshold= thresholder.otsu_global()
-    #    elif "Spectral" in method:
-    #         binary_image = thresholder.spectral_global()
+       elif "Spectral" in method:
+            binary_image = thresholder.spectral_threshold()
        else:
             return 
 
@@ -124,7 +131,7 @@ class MainWindow(QMainWindow):
        elif "Otsu" in method:
             binary_image = thresholder.otsu_local()
     #    elif "Spectral" in method:
-    #         binary_image = thresholder.spectral_global()
+    #         binary_image = thresholder.spectral_threshold()
        else:
             return 
 
@@ -133,7 +140,7 @@ class MainWindow(QMainWindow):
 
     def apply_segmentation_method(self):
         index= self.combox_segment_method.currentIndex()
-        if index==0: #RegionGrowing
+        if index==1: #RegionGrowing
             self.apply_region_growing()
         else:
             self.apply_kmeans()
@@ -142,11 +149,14 @@ class MainWindow(QMainWindow):
         image = self.input_viewer_tab1.get_loaded_image()
         kmeans = KMeansCluster(image, k=self.threshold_slider.value())
         result = kmeans.apply_kmeans()
+        self.segmented_viewer_tab1.set_mode(True)
         self.segmented_viewer_tab1.display_output_image(result)
 
     def apply_region_growing(self):
         image = self.input_viewer_tab1.get_loaded_image()
+        self.segmented_viewer_tab1.set_mode(False)
         seed_point=self.input_viewer_tab1.get_seed_point()
+        seed_point= seed_point.x(), seed_point.y()
         print(f"seed point: {seed_point}")
         self.region_grower = RegionGrowing(image) 
         result = self.region_grower.segment_image(seed_point, threshold=self.threshold_slider.value())
@@ -170,10 +180,15 @@ class MainWindow(QMainWindow):
 
 
         elif selected_method == "Agglomerative":
-         if self.input_viewer_segment is None:
-            self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
-         if self.output_viewer_segment is None:
-            self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
+            if self.input_viewer_segment is None:
+                self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
+            aggolmerative=AgglomerativeClustering(self.number_clusters.value(),25)
+            resulted_image=aggolmerative.apply(self.input_viewer_segment.img_data)
+
+            if self.output_viewer_segment is None:
+                self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
+
+            self.output_viewer_segment.display_output_image(resulted_image) 
 
         # self.run_agglomerative()
 
@@ -232,6 +247,7 @@ class MainWindow(QMainWindow):
      self.colorLabel.setText(f" {self.colorSlider.value()}")
      self.gradientLabel.setText(f" {self.gradientSlider.value()}")
      self.mergingLabel.setText(f" {self.mergingSlider.value() / 100.0:.2f}")
+     self.agglomerative_label.setText(f" {self.number_clusters.value()}")
 
 
 if __name__ == '__main__':
@@ -239,5 +255,5 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     window.showMaximized()
-    sys.exit(app.exec_())        
+    sys.exit(app.exec())        
     
