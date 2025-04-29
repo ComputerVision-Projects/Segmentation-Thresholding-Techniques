@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import time
 from MeanShift import MeanShift
+from AgglomerativeSegmentation import AgglomerativeClustering
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -32,7 +33,8 @@ class MainWindow(QMainWindow):
         self.bandwidthSlider = self.findChild(QSlider, "bandwidthSlider")
         self.colorSlider = self.findChild(QSlider, "colorSlider")
         self.gradientSlider = self.findChild(QSlider, "gradientSlider")
-
+        self.number_clusters=self.findChild(QSlider,"clustersSlider")
+        self.number_clusters.setRange(20,30)
         self.spatialSlider.setRange(1, 50)
         self.colorSlider.setRange(1, 50)
         self.mergingSlider.setRange(10, 200)
@@ -59,10 +61,15 @@ class MainWindow(QMainWindow):
 
 
         elif selected_method == "Agglomerative":
-         if self.input_viewer_segment is None:
-            self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
-         if self.output_viewer_segment is None:
-            self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
+            if self.input_viewer_segment is None:
+                self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
+            aggolmerative=AgglomerativeClustering(15,self.number_clusters.value())
+            resulted_image=aggolmerative.apply(self.input_viewer_segment.img_data)
+
+            if self.output_viewer_segment is None:
+                self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
+
+            self.output_viewer_segment.display_output_image(resulted_image) 
 
         # self.run_agglomerative()
 
