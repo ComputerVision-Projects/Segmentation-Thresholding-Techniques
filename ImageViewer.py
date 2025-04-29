@@ -43,10 +43,9 @@ class ImageViewer(QWidget):
     def handle_mouse_press(self, event):
         if event.button() == Qt.LeftButton:
             pos = event.pos()
-            self.seed_point = QPoint(pos.x(), pos.y())
-            print(f"position: {pos}")
-            self.update()
-    
+            self.seed_point = pos
+            print(f"Seed point in input_view coordinates: {pos}")
+
     def paintEvent(self, event):
         painter = QPainter(self)
 
@@ -181,3 +180,28 @@ class ImageViewer(QWidget):
         return self.img_data
 
 
+class ClickableImageWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.pixmap = None
+        self.seed_point = None
+
+    def set_pixmap(self, pixmap):
+        self.pixmap = pixmap
+        self.update()
+
+    def set_seed_point(self, point):
+        self.seed_point = point
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        if self.pixmap:
+            scaled_pixmap = self.pixmap.scaled(self.size(), Qt.KeepAspectRatio)
+            painter.drawPixmap(0, 0, scaled_pixmap)
+
+        if self.seed_point:
+            pen = QPen(Qt.red)
+            pen.setWidth(5)
+            painter.setPen(pen)
+            painter.drawEllipse(self.seed_point, 5, 5)

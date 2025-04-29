@@ -5,7 +5,7 @@ import sys
 import cv2
 from PyQt5.QtCore import Qt
 from PyQt5.uic import loadUi
-from ImageViewer import ImageViewer
+from ImageViewer import ImageViewer, ClickableImageWidget
 import cv2
 import numpy as np
 import time
@@ -77,25 +77,34 @@ class MainWindow(QMainWindow):
         self.gradientSlider.valueChanged.connect(self.update_slider_labels)
         self.mergingSlider.valueChanged.connect(self.update_slider_labels)
         self.number_clusters.valueChanged.connect(self.update_slider_labels)
-        
-
-        # Initial update so labels reflect default slider positions
-        self.update_slider_labels()
-
         self.apply_segmentation.clicked.connect(self.apply_segmentation_clicked)
 
         #kmeans&region growing tab
-        self.input_widget_tab1 = self.findChild(QWidget, "inputImage_2")
         self.segmented_widget_tab1 = self.findChild(QWidget, "segmentedImage")
-        self.input_viewer_tab1 = ImageViewer(input_view=self.input_widget_tab1, mode=True)
-        self.segmented_viewer_tab1 = ImageViewer(output_view=self.segmented_widget_tab1, mode=True)    
-        
+        placeholder = self.findChild(QWidget, "inputImage_2")
+        layout = placeholder.parent().layout()
+        self.input_widget_tab1 = ClickableImageWidget()
+        layout.replaceWidget(placeholder, self.input_widget_tab1)
+        placeholder.deleteLater()
+
         self.threshold_slider = self.findChild(QSlider, "thresholdSlider")
         self.threshold_slider.setMinimum(1)
         self.threshold_slider.setMaximum(50)
+        self.thresholdLabel= self.findChild(QLabel, "spatialLabel")
+        self.thresholdtext= self.findChild(QLabel, "label1_9")
+        self.thresholdtext.setText("Num of Clusters")       
+        self.update_slider_labels()
+
+
+        # Setup ImageViewer to use it
+        self.input_viewer_tab1 = ImageViewer(input_view=self.input_widget_tab1, mode=True)
+        self.input_widget_tab1.mousePressEvent = self.input_viewer_tab1.handle_mouse_press
+        self.segmented_viewer_tab1 = ImageViewer(output_view=self.segmented_widget_tab1, mode=True)    
         self.combox_segment_method=self.findChild(QComboBox, "segmentMethod")
         self.apply_segment= self.findChild(QPushButton, "apply_segment")
         self.apply_segment.clicked.connect(self.apply_segmentation_method)
+        self.threshold_slider.valueChanged.connect(self.update_slider_labels)
+
 
     def apply_global_threshold(self):
        method = self.thresholding_combobox.currentText()
@@ -141,8 +150,10 @@ class MainWindow(QMainWindow):
     def apply_segmentation_method(self):
         index= self.combox_segment_method.currentIndex()
         if index==1: #RegionGrowing
+            self.thresholdtext.setText("Threshold")
             self.apply_region_growing()
         else:
+            self.thresholdtext.setText("Num of Clusters")
             self.apply_kmeans()
 
     def apply_kmeans(self):
@@ -156,7 +167,7 @@ class MainWindow(QMainWindow):
         image = self.input_viewer_tab1.get_loaded_image()
         self.segmented_viewer_tab1.set_mode(False)
         seed_point=self.input_viewer_tab1.get_seed_point()
-        seed_point= seed_point.x(), seed_point.y()
+        seed_point=(50, 50)
         print(f"seed point: {seed_point}")
         self.region_grower = RegionGrowing(image) 
         result = self.region_grower.segment_image(seed_point, threshold=self.threshold_slider.value())
@@ -176,8 +187,6 @@ class MainWindow(QMainWindow):
                 self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
 
             self.run_mean_shift()
-
-
 
         elif selected_method == "Agglomerative":
             if self.input_viewer_segment is None:
@@ -248,6 +257,7 @@ class MainWindow(QMainWindow):
      self.gradientLabel.setText(f" {self.gradientSlider.value()}")
      self.mergingLabel.setText(f" {self.mergingSlider.value() / 100.0:.2f}")
      self.agglomerative_label.setText(f" {self.number_clusters.value()}")
+     self.thresholdLabel.setText(f" {self.threshold_slider.value()}")
 
 
 if __name__ == '__main__':
