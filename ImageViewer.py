@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QFileDialog, QVBoxLayout, QWidget, QLabel
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import QEvent, Qt
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
+from PyQt5.QtCore import QEvent, Qt, QPoint
 import cv2
 import numpy as np
 
@@ -24,13 +24,11 @@ class ImageViewer(QWidget):
             self.input_view.setMouseTracking(True)
             self.input_view.installEventFilter(self)
        
-
-       
-    
-    def setup_double_click_event(self):
+        self.seed_point=None
+    def setup_mouse_events(self):
         if self.input_view:
             self.input_view.mouseDoubleClickEvent = self.handle_double_click
-    
+            self.input_view.mousePressEvent = self.handle_mouse_press  # ← Add this line
     
 
     def handle_double_click(self, event=None):
@@ -39,6 +37,27 @@ class ImageViewer(QWidget):
         )
         if file_path:
             self.browse_image(file_path)
+    
+    def handle_mouse_press(self, event):
+        if event.button() == Qt.LeftButton:
+            pos = event.pos()
+            self.seed_point = QPoint(pos.x(), pos.y())
+            self.update()
+    
+    def paintEvent(self, event):
+        painter = QPainter(self)
+
+        if not self.show_mask:
+            painter.drawPixmap(0, 0, self.pixmap)
+
+        if self.seed_point:
+            pen = QPen(Qt.red)
+            pen.setWidth(5)
+            painter.setPen(pen)
+            painter.drawEllipse(self.seed_point, 5, 5)  # draw seed poin
+    
+    def get_seed_point(self):
+        return self.seed_point
     
     def browse_image(self, image_path):
         self._image_path = image_path
