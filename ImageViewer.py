@@ -18,7 +18,7 @@ class ImageViewer(QWidget):
         self.mode = mode #to display colored image
         self.widget = widget
         self.label=None
-        self.setup_double_click_event()
+        self.setup_mouse_events()
         if self.widget == 2 and self.input_view:
             print("enter")
             self.input_view.setMouseTracking(True)

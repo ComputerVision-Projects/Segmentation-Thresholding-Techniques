@@ -14,29 +14,48 @@ from AgglomerativeSegmentation import AgglomerativeClustering
 from ImageViewer import ImageViewer
 from KMeansCluster import KMeansCluster
 from RegionGrowing import RegionGrowing
+from Thresholder import Thresholder
+from MeanShift import MeanShift
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         loadUi("MainWindow.ui", self)
+
+        #thresholding
+        self.input_image_threshold = self.findChild(QWidget, "inputImageTh")
+        self.output_image_threshold = self.findChild(QWidget, "outputImageTh")
+
+        self.input_viewer = ImageViewer(input_view=self.input_image_threshold, mode=False)
+        self.output_viewer = ImageViewer(output_view=self.output_image_threshold, mode=False)
+
+        self.thresholding_combobox = self.findChild(QComboBox, "thresholdingCombo")
+
+        self.apply_global_thresholding = self.findChild(QPushButton, "applyGlobalThreshold")
+        self.apply_local_thresholding = self.findChild(QPushButton, "applyLocalThreshold")
+
+        self.apply_global_thresholding.clicked.connect(self.apply_global_threshold)
+        self.apply_local_thresholding.clicked.connect(self.apply_local_threshold)
+
+
+
         #hajer/judy
         self.input_image_segment = self.findChild(QWidget, "inputImage")
         self.output_image_segment = self.findChild(QWidget, "outputImage")
 
-        self.apply_segmentation= self.findChild(QPushButton, "applySegmentation")
-        self.select_method_for_segmentation = self.findChild(QComboBox, "segmentationCombo")
+        self.apply_segmentation= self.findChild(QPushButton, "applySegmentation_2")
+        self.select_method_for_segmentation = self.findChild(QComboBox, "segmentationCombo_2")
 
         self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
         self.output_viewer_segment = ImageViewer(output_view=self.output_image_segment, mode=True)
 
-        self.spatialSlider = self.findChild(QSlider, "spatialSlider")
-        self.mergingSlider = self.findChild(QSlider, "mergingSlider")
-        self.bandwidthSlider = self.findChild(QSlider, "bandwidthSlider")
-        self.colorSlider = self.findChild(QSlider, "colorSlider")
-        self.gradientSlider = self.findChild(QSlider, "gradientSlider")
-        self.number_clusters=self.findChild(QSlider,"clustersSlider")
-        self.number_clusters.setRange(20,30)
+        self.spatialSlider = self.findChild(QSlider, "spatialSlider_2")
+        self.mergingSlider = self.findChild(QSlider, "mergingSlider_2")
+        self.bandwidthSlider = self.findChild(QSlider, "bandwidthSlider_2")
+        self.colorSlider = self.findChild(QSlider, "colorSlider_2")
+        self.gradientSlider = self.findChild(QSlider, "gradientSlider_2")
+
         self.spatialSlider.setRange(1, 50)
         self.colorSlider.setRange(1, 50)
         self.mergingSlider.setRange(10, 200)
@@ -46,8 +65,8 @@ class MainWindow(QMainWindow):
         self.apply_segmentation.clicked.connect(self.apply_segmentation_clicked)
 
         #kmeans&region growing tab
-        self.input_widget_tab1 = self.findChild(QWidget, "inputImage")
-        self.segmented_widget_tab1 = self.findChild(QWidget, "segmentedImage")
+        self.input_widget_tab1 = self.findChild(QWidget, "inputImage_2")
+        self.segmented_widget_tab1 = self.findChild(QWidget, "segmentedImage_2")
         self.input_viewer_tab1 = ImageViewer(input_view=self.input_widget_tab1, mode=True)
         self.segmented_viewer_tab1 = ImageViewer(output_view=self.segmented_widget_tab1, mode=True)    
         
@@ -58,8 +77,49 @@ class MainWindow(QMainWindow):
         self.apply_segment= self.findChild(QPushButton, "apply_segment")
         self.apply_segment.clicked.connect(self.apply_segmentation_method)
 
+    def apply_global_threshold(self):
+       method = self.thresholding_combobox.currentText()
+       image = self.input_viewer.get_loaded_image()
+       if image is None:
+            print("No image loaded.")
+            return
+       # make sure it's grayscale
+       gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
+       thresholder = Thresholder(gray_image)
+       if "Optimal" in method:
+            binary_image, threshold_value = thresholder.optimal_global()
+       elif "Otsu" in method:
+            binary_image, optimal_threshold= thresholder.otsu_global()
+    #    elif "Spectral" in method:
+    #         binary_image = thresholder.spectral_global()
+       else:
+            return 
+
+       self.output_viewer.display_output_image(binary_image)
+
+    def apply_local_threshold(self):
+       method = self.thresholding_combobox.currentText()
+       image = self.input_viewer.get_loaded_image()
+       if image is None:
+            print("No image loaded.")
+            return
+       # make sure it's grayscale
+       gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
+       thresholder = Thresholder(gray_image)
+       if "Optimal" in method:
+            binary_image = thresholder.optimal_local()
+       elif "Otsu" in method:
+            binary_image = thresholder.otsu_local()
+    #    elif "Spectral" in method:
+    #         binary_image = thresholder.spectral_global()
+       else:
+            return 
+
+       self.output_viewer.display_output_image(binary_image)
+
+
     def apply_segmentation_method(self):
-        index= self.combox_segment_method.getCurrentIndex()
+        index= self.combox_segment_method.currentIndex()
         if index==0: #RegionGrowing
             self.apply_region_growing()
         else:
