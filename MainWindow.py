@@ -55,7 +55,8 @@ class MainWindow(QMainWindow):
         self.bandwidthSlider = self.findChild(QSlider, "bandwidthSlider_2")
         self.colorSlider = self.findChild(QSlider, "colorSlider_2")
         self.gradientSlider = self.findChild(QSlider, "gradientSlider_2")
-
+        self.number_clusters=self.findChild(QSlider,"clustersSlider")
+    
         self.spatialSlider.setRange(1, 50)
         self.colorSlider.setRange(1, 50)
         self.mergingSlider.setRange(10, 200)
@@ -159,7 +160,7 @@ class MainWindow(QMainWindow):
         elif selected_method == "Agglomerative":
             if self.input_viewer_segment is None:
                 self.input_viewer_segment = ImageViewer(input_view=self.input_image_segment, mode=True)
-            aggolmerative=AgglomerativeClustering(15,self.number_clusters.value())
+            aggolmerative=AgglomerativeClustering(self.number_clusters.value(),25)
             resulted_image=aggolmerative.apply(self.input_viewer_segment.img_data)
 
             if self.output_viewer_segment is None:
