@@ -44,7 +44,7 @@ Performs global and local thresholding:
 <img  width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/5e1a65f1-98f4-450c-98f7-43b2f561c367" />
 <img width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/4bc29b21-0314-450d-9930-049caf328974" />
 
-
+---
 ### **2. MeanShift Class**
 Performs non-parametric clustering using spatial and color features.
 
