@@ -1,4 +1,4 @@
-# PART A: Segmentation Studio
+# Image Segmentation Application
 
 ## Overview
 
