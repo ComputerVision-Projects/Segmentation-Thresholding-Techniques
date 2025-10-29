@@ -1,164 +1,99 @@
-# PART A: Segmentation Studio
+# 🖼️ Segmentation Studio
 
-## Overview
-This desktop application provides a comprehensive platform for experimenting with various **image segmentation techniques** — both classical and modern — with an intuitive user interface and modular class-based implementation. It enables users to visualize, compare, and analyze the behavior of segmentation algorithms like **Thresholding, Mean Shift, K-Means, Agglomerative Clustering, and Region Growing**.  
-
-The tool is built using **Python (PyQt5 + OpenCV)** and designed for educational use in digital image processing, providing both interactive parameter control and side-by-side visual comparison of segmentation results.
+[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
+[![PyQt5](https://img.shields.io/badge/PyQt5-yes-green.svg)](https://pypi.org/project/PyQt5/)
+[![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
 
 ---
 
-## Screenshots
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+  - [Input Image Section](#1-input-image-section)
+  - [Algorithm Selection](#2-algorithm-selection)
+  - [Parameter Controls](#3-parameter-controls)
+  - [Output Display](#4-output-display)
+- [Class Implementations](#class-implementations)
+  - [Thresholder Class](#1-thresholder-class)
+  - [MeanShift Class](#2-meanshift-class)
+  - [Agglomerative Clustering Class](#3-agglomerative-clustering-class)
+  - [RegionGrowing Class](#4-regiongrowing-class)
+  - [KMeansCluster Class](#5-kmeanscluster-class)
+- [Results & Observations](#results--observations)
+- [Required Libraries](#required-libraries)
+- [Acknowledgments](#acknowledgments)
+- [Contributors](#contributors)
 
-### Main Interface
-![Main Interface](assets/main_interface.png)
+---
 
-### Segmentation Examples
-![Segmentation Results](assets/segmentation_results.png)
+## Overview
+**Segmentation Studio** is a desktop application for experimenting with **image segmentation techniques**:
+
+- Thresholding (Optimal & Otsu)
+- Mean Shift
+- K-Means Clustering
+- Agglomerative Clustering
+- Region Growing
+
+It provides a **modular, interactive interface** to visualize and analyze segmentation results, supporting **educational use** in digital image processing. Built with **Python, PyQt5, and OpenCV**.
 
 ---
 
 ## Features
 
 ### 1. Input Image Section
-- **Display & Upload**: Supports color or grayscale image input.  
-- **Upload Button**: Opens a file dialog for image selection.  
-- **Auto Conversion**: Converts color images to grayscale where required.  
+- **Upload & Display**: Supports color or grayscale images  
+- **Auto Conversion**: Converts color images to grayscale where needed  
+- **File Dialog**: Easy image selection with file browser  
 
 ### 2. Algorithm Selection
-Users can select from multiple segmentation algorithms:
-- **Mean Shift Segmentation**
-- **Agglomerative Clustering**
-- **K-Means Clustering**
-- **Region Growing**
+- Mean Shift  
+- Agglomerative Clustering  
+- K-Means Clustering  
+- Region Growing  
 
 ### 3. Parameter Controls
-Dynamic control panels appear based on the selected algorithm:
+Dynamic controls based on selected algorithm:
 
-#### K-Means
-- Number of clusters (slider or spinbox)
+**K-Means**  
+- Number of clusters (slider/spinbox)
 
-#### Mean Shift
+**Mean Shift**  
 - Spatial radius  
 - Color radius  
 - Bandwidth  
 - Merging threshold  
-- Optional gradient inclusion
+- Optional gradient features  
 
-#### Region Growing
-- Seed point selection (click on image)  
-- Similarity threshold slider  
+**Region Growing**  
+- Seed point selection  
+- Similarity threshold  
 - Minimum region size  
 
-#### Agglomerative Clustering
+**Agglomerative Clustering**  
 - Number of clusters  
-- Initial number of clusters for coarse grouping
+- Initial cluster count  
 
-- **"Apply" Button**: Executes segmentation with current settings.
+**Apply Button** executes the selected algorithm.
 
 ### 4. Output Display
-- **Dual View Panels**:  
-  - Left: Original input image  
-  - Right: Segmented output
-- **Visualization Options**:  
-  - Show boundaries  
-  - Apply smoothing  
-  - View cluster centers  
+- **Dual View Panels**: Original vs. segmented output  
+- **Visualization Options**: Show boundaries, smoothing, cluster centers  
 
 ---
 
-# PART B: Class Implementations
+## Class Implementations
 
-The system is divided into **7 modular classes** for scalability, reusability, and clarity.
+### 1. Thresholder Class
+Provides global and local thresholding methods:
+- Optimal thresholding (global & local)  
+- Otsu thresholding (global & local)  
+- Spectral (three-level) thresholding  
 
-## 1. Thresholder Class
-Implements global and local thresholding algorithms:
-- Optimal Global & Local Thresholding  
-- Otsu’s Global & Local Methods  
-- Spectral (Three-Level) Thresholding
-
-**Key Methods:**
-- `optimal_global(self, margin=10, convergence_threshold=0.5)`  
-- `optimal_local(self, block_size=80, margin=3)`  
-- `otsu_global(self)`  
-- `otsu_local(self, block_size=50)`  
-- `spectral_threshold(self)`  
-
-> **Note:** Global thresholding methods produced more stable and reliable results compared to local approaches.
-
----
-
-## 2. MeanShift Class
-Performs **non-parametric clustering** using joint spatial-color feature space.
-
-**Key Methods:**
-- `compute_features(image)`  
-- `segment(image)`  
-
-Supports spatial, color, and optional gradient features. Adjustable kernel bandwidth, spatial radius, and merging threshold.
-
----
-
-## 3. Agglomerative Clustering Class
-Implements **hierarchical clustering** for image segmentation.
-
-**Workflow:**
-1. Start with each pixel as a cluster  
-2. Iteratively merge closest clusters  
-3. Update cluster centroids  
-
-**Analysis:**  
-- 5 clusters → overgeneralized segmentation  
-- 15 clusters → clearer boundaries, better accuracy
-
----
-
-## 4. RegionGrowing Class
-Performs **seed-based segmentation** by expanding a region according to pixel similarity.
-
-**Parameters:**
-- Threshold (pixel similarity)  
-- Connectivity (4- or 8-neighbor)
-
-**Example Results:**
-- Threshold = 10 → limited segmentation  
-- Threshold = 25 → more accurate object extraction
-
----
-
-## 5. KMeansCluster Class
-Performs **unsupervised color-based segmentation** using K-Means.
-
-**Workflow:**
-1. Initialize centroids  
-2. Assign pixels to nearest cluster  
-3. Update centroids iteratively  
-4. Recreate segmented image
-
-**Results:**
-- 9 clusters → simplified regions  
-- 17 clusters → closer to original image
-
----
-
-# PART C: Results & Observations
-
-| Algorithm | Type | Key Strength | Limitation |
-|-----------|------|--------------|------------|
-| Otsu / Optimal Thresholding | Global | Simple, fast | Not ideal for textured images |
-| Mean Shift | Clustering | Preserves edges, smooth segmentation | Computationally expensive |
-| Agglomerative | Hierarchical | Fine-grained control | Slower for large images |
-| Region Growing | Local | Great for uniform intensity | Sensitive to seed & threshold |
-| K-Means | Clustering | Clear color-based regions | May ignore spatial context |
-
----
-
-## Required Libraries
-```bash
-PyQt5
-numpy
-opencv-python
-Pillow
-matplotlib
-logging
-sys
-os
+**Key Methods:**  
+```python
+optimal_global(margin=10, convergence_threshold=0.5)
+optimal_local(block_size=80, margin=3)
+otsu_global()
+otsu_local(block_size=50)
+spectral_threshold()
