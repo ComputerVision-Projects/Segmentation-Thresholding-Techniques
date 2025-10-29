@@ -110,7 +110,7 @@ Performs unsupervised color-based clustering:
 
 ## Acknowledgments
 
-Supervised by **Dr. Tamer Basha** & **Eng. Omar** during the **Digital Image Processing** course at **Cairo University, Faculty of Engineering**.
+Supervised by **Professor Ahmed Badwy** during the **Computer Vision** course at **Cairo University, Faculty of Engineering**.
 
 ![Cairo University Logo](https://imgur.com/Wk4nR0m.png)
 
