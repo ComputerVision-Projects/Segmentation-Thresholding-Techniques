@@ -41,8 +41,8 @@ Performs global and local thresholding:
 - Spectral (three-level) Thresholding
 
 **Example Output:**  
-<img width="412" height="303" alt="image" src="https://github.com/user-attachments/assets/5e1a65f1-98f4-450c-98f7-43b2f561c367" />
-<img width="416" height="307" alt="image" src="https://github.com/user-attachments/assets/4bc29b21-0314-450d-9930-049caf328974" />
+<img  width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/5e1a65f1-98f4-450c-98f7-43b2f561c367" />
+<img width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/4bc29b21-0314-450d-9930-049caf328974" />
 
 
 ### **2. MeanShift Class**
@@ -66,7 +66,7 @@ Seed-based segmentation that grows regions around a selected point:
 - Supports 4- or 8-connected neighborhood exploration.
 
 **Example Output:**  
-assets/<img width="552" height="392" alt="image" src="https://github.com/user-attachments/assets/df31d462-6d4c-403b-a2fc-8c5c8918c676" />
+<img  width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/df31d462-6d4c-403b-a2fc-8c5c8918c676" />
 
 
 ---
@@ -79,7 +79,7 @@ Performs unsupervised color-based clustering:
 - Reconstructs segmented image
 
 **Example Output:**  
-assets/<img width="497" height="354" alt="image" src="https://github.com/user-attachments/assets/026ffd40-26ea-4877-b80a-a17c51b60fa0" />
+<img  width="780" height="449" alt="image" src="https://github.com/user-attachments/assets/026ffd40-26ea-4877-b80a-a17c51b60fa0" />
 
 
 ---
