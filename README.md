@@ -41,8 +41,8 @@ Performs global and local thresholding:
 - Spectral (three-level) Thresholding
 
 **Example Output:**  
-![Optimal Thresholding](assets/<img width="416" height="347" alt="image" src="https://github.com/user-attachments/assets/e4f9b903-c26f-4f39-a3fd-f47ca6d6f8f7" />)  
-![Otsu Thresholding](assets/<img width="412" height="348" alt="image" src="https://github.com/user-attachments/assets/331c08b4-53da-40a1-9332-17c49caab862" />) 
+assets/<img width="416" height="347" alt="image" src="https://github.com/user-attachments/assets/e4f9b903-c26f-4f39-a3fd-f47ca6d6f8f7" />
+assets/<img width="412" height="348" alt="image" src="https://github.com/user-attachments/assets/331c08b4-53da-40a1-9332-17c49caab862" />
 
 
 ### **2. MeanShift Class**
